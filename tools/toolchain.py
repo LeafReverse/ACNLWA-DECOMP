@@ -10,6 +10,8 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+import ssl
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -52,10 +54,12 @@ def pickDownload(tool):
     return downloads.get(HostPlatform()) or downloads.get("any")
 
 def resolvePattern(base, pattern):
-    exe = ".exe" if HostPlatform().startswith("windows") else ""
-    for candidate in (pattern + exe, pattern):
-        hits = sorted(glob.glob(str(base / candidate), recursive=True))
-        if hits: return Path(hits[0])
+    exe = r"\.exe" if HostPlatform().startswith("windows") else ""
+    regex = re.compile(pattern + exe)
+    
+    for candidate in glob.glob(str(base / "**" / "*"), recursive=True):
+        if regex.search(str(candidate.replace("\\", "/"))):
+            return Path(candidate)
 
     return None
 
@@ -79,6 +83,7 @@ def Resolve(name, key=None, manifest=None):
     return Path(found) if found else None
 
 def download(url, dest):
+    ssl._create_default_https_context = ssl._create_stdlib_context
     request = urllib.request.Request(url, headers={"User-Agent": "ctr-decomp"})
     with urllib.request.urlopen(request, timeout=120) as resp, open(dest, "wb") as out:
         total = int(resp.headers.get("Content-Length") or 0)
