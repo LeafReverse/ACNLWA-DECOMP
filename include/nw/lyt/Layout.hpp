@@ -9,6 +9,8 @@ namespace nw { namespace lyt
     {
         public:
         virtual ~Layout();
+
+        static void FreeMemory(void* ptr);
         virtual void vfunc_2();
         virtual void vfunc_3();
         virtual void vfunc_4();
