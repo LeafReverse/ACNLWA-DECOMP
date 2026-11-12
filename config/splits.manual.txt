@@ -1,0 +1,53 @@
+game/stage/Stage.cpp:
+	.text        start:0x002F755C end:0x002F756C
+	.text        start:0x002F7574 end:0x002F75A4
+	.text        start:0x00304258 end:0x00304268
+	.text        start:0x005B2EC0 end:0x005B60A0
+
+game/ssys/ma/lyt/Layout.cpp:
+	.text        start:0x001323D8 end:0x001323E0
+	.text        start:0x004B4018 end:0x004B4020
+	.text        start:0x00567688 end:0x00568830
+
+game/ssys/ma/lyt/Animation.cpp:
+	.text        start:0x00125B10 end:0x00125B5C
+	.text        start:0x00568838 end:0x00568930
+
+game/ssys/ma/lyt/LayoutMgr.cpp:
+	.text        start:0x001323E0 end:0x001323F0
+	.text        start:0x005691A4 end:0x00569778
+
+game/netgame/NetGameMgr.cpp:
+	.text        start:0x0030601C end:0x00306034
+	.text        start:0x0075D000 end:0x0075D028
+
+game/SvFgName.cpp:
+	.text        start:0x002FC29C end:0x002FC2B4
+	.text        start:0x002FC978 end:0x002FC98C
+	.text        start:0x002FC9C4 end:0x002FC9D8
+	.text        start:0x002FCB84 end:0x002FCC0C
+	.text        start:0x002FCC14 end:0x002FCC78
+	.text        start:0x002FCCB8 end:0x002FCD04
+
+game/field/FieldRect.cpp:
+	.text        start:0x0052E19C end:0x0052E1E0
+	.text        start:0x00747204 end:0x007472D0
+
+game/field/FdInfo.cpp:
+	.text        start:0x006A4E7C end:0x006A4E8C
+
+game/ButtonActionControl.cpp:
+	.text        start:0x002F7298 end:0x002F74B0
+	.text        start:0x00722510 end:0x00722568
+	.text        start:0x007227F8 end:0x00722844
+
+game/SaveMgr.cpp:
+	.text        start:0x002FB34C end:0x002FB35C
+
+game/PlayerSimpleMessage.cpp:
+	.text        start:0x002FAE08 end:0x002FB34C
+	.text        start:0x002FB35C end:0x002FB928
+
+nnsdk/fnd/DateTime.cpp:
+	.text        start:0x0012952C end:0x001296BC
+	.text        start:0x0012F8A0 end:0x0012F998

@@ -1,0 +1,127 @@
+{
+  "name": "acnlwa",
+  "title": "Animal Crossing: New Leaf - Welcome amiibo (EUR, EAAP)",
+  "binary": {
+    "path": "orig/code.bin",
+    "exheader": "orig/exheader.bin",
+    "md5": "6fd35ff3b21240a994727cc6591460cf",
+    "sha1": "4b4e5a97caff63c926240408bcb2aab81f4a13f4"
+  },
+  "entry": "0x100000",
+  "segments": [
+    {
+      "name": ".text",
+      "kind": "code",
+      "addr": "0x100000",
+      "size": "0x7377C0"
+    },
+    {
+      "name": ".rodata",
+      "kind": "rodata",
+      "addr": "0x838000",
+      "size": "0x10BA30"
+    },
+    {
+      "name": ".data",
+      "kind": "data",
+      "addr": "0x944000",
+      "size": "0x3D740"
+    },
+    {
+      "name": ".bss",
+      "kind": "bss",
+      "addr": "0x981740",
+      "size": "0x175D54"
+    }
+  ],
+  "split": {
+    "absorb_unnamed_max": 4,
+    "inline_copy_max": 3,
+    "unit_extension": ".cpp",
+    "game_root": "game",
+    "libraries": {
+      "nn": "nnsdk",
+      "sead": "sead",
+      "nw": "nw",
+      "nw4c": "nw",
+      "std": "runtime/std",
+      "cxxabiv1": "runtime/cxxabiv1",
+      "__cxxabiv1": "runtime/cxxabiv1",
+      "runtime": "runtime",
+      "g3d": "nw/g3d",
+      "lyt": "nw/lyt",
+      "font": "nw/font",
+      "libms": "libms",
+      "qrdecode": "qrdecode"
+    },
+    "sole_caller": true,
+    "merge_unnamed": true
+  },
+  "progress_categories": {
+    "game": "GardenP",
+    "sead": "sead",
+    "nw": "NintendoWare",
+    "runtime": "C/C++ runtime",
+    "libms": "LibMessageStudio",
+    "qrdecode": "QR decoder",
+    "nnsdk": "NNSDK"
+  },
+  "dependencies": {},
+  "source_roots": [
+    "src"
+  ],
+  "include_dirs": [
+    "include",
+    "include/sead"
+  ],
+  "compiler": {
+    "name": "armcc-4.1-1093",
+    "cflags": [
+      "--cpp",
+      "--cpu=MPCore",
+      "--arm",
+      "--apcs=/interwork",
+      "--fpmode=fast",
+      "--no_rtti",
+      "--no_exceptions",
+      "--no_vfe",
+      "--force_new_nothrow",
+      "--signed_chars",
+      "--multibyte_chars",
+      "--locale=japanese",
+      "-O3",
+      "-Otime",
+      "--data_reorder",
+      "--split_sections",
+      "--forceinline",
+      "--preinclude",
+      "include/compat/cpp03_shim.h"
+    ],
+    "flag_overrides": []
+  },
+  "objdiff": {
+    "options": {}
+  },
+  "symbol_imports": [
+    {
+      "format": "ida-map",
+      "path": "config/imports/acnlwa.ida.map"
+    },
+    {
+      "format": "ida-map",
+      "path": "config/imports/nn.recovered.map"
+    },
+    {
+      "format": "units-json",
+      "path": "config/imports/nnsdk.units.json",
+      "overwrite": true
+    }
+  ],
+  "library_compilers": [
+    "armcc-4.1-1093"
+  ],
+  "image": {
+    "md5": "dbea4668a5d4dd04a6d11661ae4262db",
+    "sha1": "e39af05e77f0fdba7f2b46c6bc263808f535b26f"
+  }
+}

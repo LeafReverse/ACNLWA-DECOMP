@@ -1,0 +1,244 @@
+{
+  "manifest_version": 1,
+  "platforms": [
+    "linux-x86_64",
+    "linux-aarch64",
+    "macos-x86_64",
+    "macos-arm64",
+    "windows-x86_64",
+    "windows-arm64"
+  ],
+  "tools": {
+    "objdiff-cli": {
+      "repo": "https://github.com/encounter/objdiff",
+      "license": "MIT OR Apache-2.0",
+      "version": "v3.8.3",
+      "stage": "diff",
+      "required": true,
+      "downloads": {
+        "linux-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-linux-x86_64",
+          "archive": "raw"
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-linux-aarch64",
+          "archive": "raw"
+        },
+        "macos-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-macos-x86_64",
+          "archive": "raw"
+        },
+        "macos-arm64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-macos-arm64",
+          "archive": "raw"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-windows-x86_64.exe",
+          "archive": "raw"
+        },
+        "windows-arm64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-cli-windows-arm64.exe",
+          "archive": "raw"
+        }
+      },
+      "bin": {
+        "objdiff-cli": "objdiff-cli"
+      }
+    },
+    "objdiff": {
+      "repo": "https://github.com/encounter/objdiff",
+      "license": "MIT OR Apache-2.0",
+      "version": "v3.8.3",
+      "stage": "diff",
+      "required": false,
+      "downloads": {
+        "linux-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-linux-x86_64",
+          "archive": "raw"
+        },
+        "macos-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-macos-x86_64",
+          "archive": "raw"
+        },
+        "macos-arm64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-macos-arm64",
+          "archive": "raw"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/encounter/objdiff/releases/download/v3.8.3/objdiff-windows-x86_64.exe",
+          "archive": "raw"
+        }
+      },
+      "bin": {
+        "objdiff": "objdiff"
+      }
+    },
+    "ctrtool": {
+      "repo": "https://github.com/3DSGuy/Project_CTR",
+      "license": "MIT",
+      "version": "ctrtool-v1.3.0",
+      "stage": "extract",
+      "required": false,
+      "downloads": {
+        "linux-x86_64": {
+          "url": "https://github.com/3DSGuy/Project_CTR/releases/download/ctrtool-v1.3.0/ctrtool-v1.3.0-ubuntu_x86_64.zip",
+          "archive": "zip"
+        },
+        "macos-x86_64": {
+          "url": "https://github.com/3DSGuy/Project_CTR/releases/download/ctrtool-v1.3.0/ctrtool-v1.3.0-macos_x86_64.zip",
+          "archive": "zip"
+        },
+        "macos-arm64": {
+          "url": "https://github.com/3DSGuy/Project_CTR/releases/download/ctrtool-v1.3.0/ctrtool-v1.3.0-macos_arm64.zip",
+          "archive": "zip"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/3DSGuy/Project_CTR/releases/download/ctrtool-v1.3.0/ctrtool-v1.3.0-win_x64.zip",
+          "archive": "zip"
+        }
+      },
+      "bin": {
+        "ctrtool": "**/ctrtool"
+      }
+    },
+    "arm-none-eabi": {
+      "repo": "https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads",
+      "license": "GPL-3.0",
+      "version": "14.3.rel1",
+      "stage": "build",
+      "required": true,
+      "downloads": {
+        "linux-x86_64": {
+          "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz",
+          "archive": "tar.xz"
+        },
+        "linux-aarch64": {
+          "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-aarch64-arm-none-eabi.tar.xz",
+          "archive": "tar.xz"
+        },
+        "macos-arm64": {
+          "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-darwin-arm64-arm-none-eabi.tar.xz",
+          "archive": "tar.xz"
+        },
+        "windows-x86_64": {
+          "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+          "archive": "zip"
+        }
+      },
+      "bin": {
+        "as": "arm-gnu-toolchain-*/bin/arm-none-eabi-as",
+        "objdump": "arm-gnu-toolchain-*/bin/arm-none-eabi-objdump",
+        "nm": "arm-gnu-toolchain-*/bin/arm-none-eabi-nm",
+        "readelf": "arm-gnu-toolchain-*/bin/arm-none-eabi-readelf",
+        "cxxfilt": "arm-gnu-toolchain-*/bin/arm-none-eabi-c++filt",
+        "gcc": "arm-gnu-toolchain-*/bin/arm-none-eabi-g++",
+        "objcopy": "arm-gnu-toolchain-*/bin/arm-none-eabi-objcopy",
+        "ld": "arm-gnu-toolchain-*/bin/arm-none-eabi-ld",
+        "gdb": "arm-gnu-toolchain-*/bin/arm-none-eabi-gdb"
+      }
+    },
+    "ninja": {
+      "repo": "https://github.com/ninja-build/ninja",
+      "license": "Apache-2.0",
+      "version": "v1.13.2",
+      "stage": "build",
+      "required": true,
+      "system_fallback": "ninja",
+      "downloads": {
+        "linux-x86_64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linux.zip",
+          "archive": "zip"
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linux-aarch64.zip",
+          "archive": "zip"
+        },
+        "macos-x86_64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-mac.zip",
+          "archive": "zip"
+        },
+        "macos-arm64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-mac.zip",
+          "archive": "zip"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip",
+          "archive": "zip"
+        },
+        "windows-arm64": {
+          "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-winarm64.zip",
+          "archive": "zip"
+        }
+      },
+      "bin": {
+        "ninja": "ninja"
+      }
+    },
+    "wine": {
+      "repo": "https://gitlab.winehq.org/wine/wine",
+      "license": "LGPL-2.1",
+      "stage": "build",
+      "required": false,
+      "system": {
+        "linux": [
+          "dnf install wine",
+          "apt install wine",
+          "pacman -S wine"
+        ],
+        "macos": [
+          "brew install --cask wine-stable"
+        ]
+      },
+      "bin": {
+        "wine": "wine"
+      }
+    },
+    "3dsdecomp-toolkit": {
+      "repo": "https://github.com/EltyDev/3dsdecomp-toolkit",
+      "license": "MIT",
+      "version": "b2e423d",
+      "stage": "analyze",
+      "required": true,
+      "build": {
+        "git": "https://github.com/EltyDev/3dsdecomp-toolkit",
+        "ref": "b2e423dfabfedd7adb00b28f28e8887d21fe8e5b"
+      },
+      "bin": {
+        "3dsdecomp-toolkit": "build/bin/3dsdecomp-toolkit"
+      }
+    }
+  },
+  "python": {
+    "requirements": "requirements.txt",
+    "packages": {
+      "capstone": {
+        "repo": "https://github.com/capstone-engine/capstone",
+        "license": "BSD-3-Clause"
+      },
+      "pyelftools": {
+        "repo": "https://github.com/eliben/pyelftools",
+        "license": "Unlicense"
+      }
+    }
+  },
+  "compilers": {
+    "armcc-4.1-1093": {
+      "proprietary": true,
+      "layout": "nintendo",
+      "build": "1093",
+      "env_prefix": "ARMCC41",
+      "runner": {
+        "windows": "native",
+        "linux": "wine",
+        "macos": "wine"
+      },
+      "programs": [
+        "armcc",
+        "armasm",
+        "armlink",
+        "armar",
+        "fromelf"
+      ]
+    }
+  }
+}
