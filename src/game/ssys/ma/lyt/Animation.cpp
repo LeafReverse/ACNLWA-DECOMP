@@ -12,3 +12,12 @@ void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
 
     animTransform->SetFrame(value);
 }
+
+void ssys::ma::lyt::FrameCtrl::Setup(float count, float increase, float start, bool isLoop)
+{
+    frameCount = count;
+    frame = (start < 0.0f) ? 0.0f : start;
+    frameIncrease = increase;
+    loop = isLoop;
+    FrameCtrl::SetFrame(frame);
+}

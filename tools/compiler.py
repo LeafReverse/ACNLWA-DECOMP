@@ -172,7 +172,7 @@ def DiscoverAll():
         if not armDir.is_dir(): continue
 
         for root in sorted(armDir.glob("*")):
-            build = installedBuild(root) if (root / "bin" / "armcc.exe").exists() else None
+            build = nintendoBuild(root) if (root / "bin" / "armcc.exe").exists() else None
             if not build: continue
 
             name = "armcc-4.1-%s" % build

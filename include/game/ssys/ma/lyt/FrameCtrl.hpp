@@ -12,6 +12,8 @@ namespace ssys { namespace ma { namespace lyt
         virtual ~FrameCtrl();
         virtual void SetFrame(float value);
 
+        void Setup(float count, float increase, float start, bool isLoop);
+
         nw::lyt::AnimTransform* GetAnimTransform() const { return animTransform; }
 
         protected:
