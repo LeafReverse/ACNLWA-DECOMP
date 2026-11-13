@@ -169,6 +169,28 @@ def codeEnd(pool, count, step, keepPool=False):
 def isVfpLoad(word):
     return (word & 0x0F3F0E00) == 0x0D1F0A00
 
+def armAdrRef(word, pc):
+    if (word & 0x0FEF0000) not in (0x028F0000, 0x024F0000): return None
+    if (word >> 12) & 0xF in (14, 15): return None
+
+    rotate = ((word >> 8) & 0xF) * 2
+    value = ((word & 0xFF) >> rotate | (word & 0xFF) << (32 - rotate)) & 0xFFFFFFFF if rotate else word & 0xFF
+
+    return pc + 8 + (value if word & 0x00800000 else -value)
+
+def adrData(sym, words, pool):
+    data = set()
+    for i, word in enumerate(words):
+        ref = armAdrRef(word, sym.Addr + i * 4)
+        if ref is None or ref <= sym.Addr + i * 4 or ref >= sym.End or ref % 4: continue
+
+        offset = ref - sym.Addr
+        while offset < len(words) * 4 and offset not in pool:
+            data.add(offset)
+            offset += 4
+
+    return data
+
 def emitArm(ctx, sym, data, body, refs):
     pool = set()
     vfpPool = set()
@@ -193,6 +215,8 @@ def emitArm(ctx, sym, data, body, refs):
         pad = start - 4
         if pad >= 0 and (sym.Addr + start) % 8 == 0 and words[pad // 4] == 0: pool.add(pad)
 
+    adrPool = adrData(sym, words, pool)
+    pool |= adrPool
     i = 0
     nextFn = ctx.Functions.get(sym.End)
 
@@ -224,7 +248,7 @@ def emitArm(ctx, sym, data, body, refs):
     emitData(ctx, data, sym.Addr, count * 4, len(data), body, refs)
     end = codeEnd(pool, count, 4)
 
-    return codeEnd(pool, count, 4, keepPool=any(end <= offset for offset in vfpPool))
+    return codeEnd(pool, count, 4, keepPool=any(end <= offset for offset in vfpPool | adrPool))
 
 def emitThumb(ctx, sym, data, body, refs):
     pool = set()

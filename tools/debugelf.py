@@ -45,6 +45,24 @@ def undefinedSymbols(path):
 
         return {s.name for s in table.iter_symbols() if s.name and s["st_shndx"] == "SHN_UNDEF" and not s.name.startswith("__ARM_") and not s.name.startswith("Lib$$")}
 
+def definedObjects(path):
+    from elftools.elf.elffile import ELFFile
+    with open(path, "rb") as fh:
+        table = ELFFile(fh).get_section_by_name(".symtab")
+        if not table: return set()
+
+        return {s.name for s in table.iter_symbols() if s["st_info"]["type"] == "STT_OBJECT" and s["st_shndx"] != "SHN_UNDEF" and s["st_info"]["bind"] == "STB_GLOBAL"}
+
+def linkCopy(obj, imageNames, workDir, index):
+    duplicates = sorted(definedObjects(obj) & imageNames)
+    if not duplicates: return obj
+
+    copy = workDir / "objects" / ("%d_%s" % (index, obj.name))
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    run([ToolPath("arm-none-eabi", "objcopy")] + ["--weaken-symbol=%s" % name for name in duplicates] + [obj, copy])
+
+    return copy
+
 def quote(name):
     return '"%s"' % name
 
@@ -115,7 +133,9 @@ def main():
     unplaced = UNPLACED_BASE
     unknown = set()
     binary = LoadBinary(project, verify=False)
-    for obj in (Path(o).resolve() for o in args.objects):
+    imageNames = {s.Name for s in symbols if s.Kind not in SKIPPED_KINDS and s.Kind != "function"}
+    for index, source in enumerate(Path(o).resolve() for o in args.objects):
+        obj = linkCopy(source, imageNames, workDir, index)
         unknown.update(undefinedSymbols(obj))
         functions = {fn.Name: fn for fn in readBaseObject(obj)}
         for name, section in definedFunctions(obj):

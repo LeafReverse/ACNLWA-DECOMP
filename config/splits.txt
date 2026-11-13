@@ -6181,11 +6181,11 @@ nw/lyt/TextAreaEx/TextAreaEx_00566F78.cpp:
 game/ssys/ma/lyt/ArcResourceAccessorVRAM.cpp:
 	.text        start:0x00567168 end:0x00567688
 
-game/BsMenuCatalog/BsMenuCatalog_00568934.cpp:
-	.text        start:0x00568934 end:0x00568B7C
-
 game/ssys/ma/lyt/ArcResAcc.cpp:
-	.text        start:0x00568B80 end:0x00568BC4
+	.text        start:0x00568934 end:0x00568B9C
+
+game/ssys/ma/lyt/ArcResAcc/ArcResAcc_00568B9C.cpp:
+	.text        start:0x00568B9C end:0x00568BC4
 
 game/SystemTask/SystemTask_00568BD0.cpp:
 	.text        start:0x00568BD0 end:0x005691A0
