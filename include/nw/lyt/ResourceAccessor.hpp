@@ -37,6 +37,7 @@ namespace nw { namespace lyt
     class ArcResourceAccessor : public ResourceAccessor
     {
         public:
+        ArcResourceAccessor();
         virtual ~ArcResourceAccessor();
         virtual void* GetResource(ResType resType, const char* name, unsigned int* size = 0);
         virtual font::Font* GetFont(const char* name);

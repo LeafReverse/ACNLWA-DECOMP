@@ -32,6 +32,14 @@ def commandArg(text):
 
     return '"%s"' % text if " " in text else text
 
+# AVOID ANY EXTERNAL TOOLS TO FUCK WITH THE BUILD SYSTEM
+# CUZ THAT'S WHAT HAPPENED WHEN I UPDATED MY PACKAGES.
+def projectPython():
+    for candidate in (ROOT / ".venv" / "bin" / "python", ROOT / ".venv" / "Scripts" / "python.exe"):
+        if candidate.exists(): return str(candidate)
+
+    return sys.executable
+
 
 def relative(path):
     path = Path(path).resolve()
@@ -135,7 +143,7 @@ def writeNinja(project, units, sources, includeDirs, thumbUnits, libraryUnits, d
     binary = relative(ExpandPath(project["binary"]["path"], project))
     lines = [
         "ninja_required_version = 1.10",
-        "python = %s" % commandArg(sys.executable),
+        "python = %s" % commandArg(projectPython()),
         "asflags = %s" % " ".join(commandArg(f) for f in compiler.get("asflags", DEFAULT_ASFLAGS)),
         "objdiff = %s" % commandArg(ToolPath("objdiff-cli")),
         "includes = %s" % " ".join(commandArg("-I" + relative(d)) for d in includeDirs),
@@ -352,7 +360,7 @@ def main():
     vscode = WriteVscodeConfig(project, includeDirs, systems)
     print("%d sources: compile_commands.json%s" % (commands, ", .vscode/c_cpp_properties.json" if vscode else ""))
     debugElf = DebugElfPath(project)
-    debugFiles = WriteVscodeDebug(ToolPath("arm-none-eabi", "gdb"), ToolPath("ninja"), sys.executable, debugElf, GDB_PORT)
+    debugFiles = WriteVscodeDebug(ToolPath("arm-none-eabi", "gdb"), ToolPath("ninja"), projectPython(), debugElf, GDB_PORT)
 
     if debugFiles: print("debugger: %s" % ", ".join(".vscode/" + f for f in debugFiles))
     units = ReadSplits()

@@ -8,21 +8,25 @@ namespace ssys { namespace ma { namespace lyt
     class ResAccInterface
     {
         public:
-        virtual ~ResAccInterface();
+        ResAccInterface(nw::lyt::ResourceAccessor* accessor) : resourceAccessor(accessor), data(0) {}
+        virtual ~ResAccInterface() {}
 
         protected:
         nw::lyt::ResourceAccessor* resourceAccessor;
+        const void* data;
     };
 
     class TexBufList : public st::List
     {
         public:
+        TexBufList() {}
         virtual ~TexBufList();
     };
 
     class ArcResourceAccessorVRAM : public nw::lyt::ArcResourceAccessor
     {
         public:
+        ArcResourceAccessorVRAM() : textureArea(0x2010000) {}
         virtual ~ArcResourceAccessorVRAM();
         virtual nw::lyt::TextureInfo LoadTexture(const char* name);
 
@@ -37,11 +41,10 @@ namespace ssys { namespace ma { namespace lyt
         ArcResAcc();
         virtual ~ArcResAcc();
 
-        bool SetData(const void* data, const char* rootDir);
+        bool SetData(const void* archive, const char* rootDir);
         bool LoadAllTextures();
 
         private:
-        const void* data;
         ArcResourceAccessorVRAM accessor;
     };
 }}}

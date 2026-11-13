@@ -12,6 +12,7 @@ game/ssys/ma/lyt/Layout.cpp:
 game/ssys/ma/lyt/Animation.cpp:
 	.text        start:0x00125B10 end:0x00125B5C
 	.text        start:0x00568838 end:0x00568930
+	.text        start:0x00568B9C end:0x00568BC8
 
 game/ssys/ma/lyt/ArcResAcc.cpp:
 	.text        start:0x00568934 end:0x00568B9C

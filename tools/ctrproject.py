@@ -213,6 +213,12 @@ def ReadSymbols(path=None):
     symbols.sort(key=lambda s: s.Addr)
     return symbols
 
+def writeAtomic(path, text):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(".%s.%d.tmp" % (path.name, os.getpid()))
+    temp.write_text(text)
+    os.replace(temp, path)
+
 def WriteSymbols(symbols, path=None):
     path = Path(path or ProjectPath("config", "symbols.txt"))
     lines = []
@@ -221,8 +227,7 @@ def WriteSymbols(symbols, path=None):
         attrs = " ".join("%s:%s" % kv for kv in sym.Attrs.items())
         lines.append("%s = %s:0x%08X; // type:%s size:0x%X%s" % (sym.Name, sym.Section, sym.Addr, sym.Kind, sym.Size, (" " + attrs) if attrs else ""))
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n")
+    writeAtomic(path, "\n".join(lines) + "\n")
 
 def ReadSplits(path=None):
     path = Path(path or ProjectPath("config", "splits.txt"))
@@ -253,8 +258,7 @@ def WriteSplits(units, segments, path=None, ext=".cpp"):
         lines += ["", unit.Name + ext + ":"]
         lines += ["\t%-12s start:0x%08X end:0x%08X" % r for r in unit.Ranges]
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n")
+    writeAtomic(path, "\n".join(lines) + "\n")
 
 def ToolPath(name, key=None):
     sys.path.insert(0, str(ROOT / "tools"))

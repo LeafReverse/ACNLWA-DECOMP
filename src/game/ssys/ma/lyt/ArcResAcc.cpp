@@ -2,6 +2,19 @@
 #include <sead/prim/SafeString.hpp>
 
 #pragma arm
+ssys::ma::lyt::ArcResAcc::ArcResAcc() : ResAccInterface(&accessor) {}
+
+ssys::ma::lyt::ArcResAcc::~ArcResAcc() {}
+
+bool ssys::ma::lyt::ArcResAcc::SetData(const void* archive, const char* rootDir)
+{
+    if(data) return false;
+
+    data = archive;
+
+    return accessor.Attach(const_cast<void*>(archive), rootDir);
+}
+
 bool ssys::ma::lyt::ArcResAcc::LoadAllTextures()
 {
     nw::lyt::ArcHandle handle;
