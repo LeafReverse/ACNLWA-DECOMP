@@ -7,6 +7,8 @@ namespace nw { namespace lyt
         public:
         virtual ~AnimTransform();
 
+        unsigned short GetFrameSize() const;
+        bool IsLoopData() const;
         void SetFrame(float value) { frame = value; }
 
         private:

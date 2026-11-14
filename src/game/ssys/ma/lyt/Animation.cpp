@@ -22,6 +22,20 @@ ssys::ma::lyt::Animation::~Animation()
     entries = 0;
 }
 
+void ssys::ma::lyt::FrameCtrl::SetAnimTransform(nw::lyt::AnimTransform* transform)
+{
+    animTransform = transform;
+    if(!animTransform) return;
+
+    bool isOneShot = true;
+    if(animTransform->IsLoopData()) isOneShot = false;
+
+    Reset(animTransform->GetFrameSize(), 1.0f, 0.0f, isOneShot);
+    if(!animTransform) return;
+
+    animTransform->SetFrame(frame);
+}
+
 void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
 {
     prevFrame = value;
@@ -31,18 +45,18 @@ void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
     animTransform->SetFrame(value);
 }
 
-void ssys::ma::lyt::FrameCtrl::Init(float count, float increase, float start, bool isLoop)
+void ssys::ma::lyt::FrameCtrl::Init(float count, float increase, float start, bool isOneShot)
 {
     frameCount = count;
     frame = (start < 0.0f) ? 0.0f : start;
     frameIncrease = increase;
-    loop = isLoop;
+    flags = isOneShot;
     prevFrame = frame;
 }
 
-void ssys::ma::lyt::FrameCtrl::Setup(float count, float increase, float start, bool isLoop)
+void ssys::ma::lyt::FrameCtrl::Setup(float count, float increase, float start, bool isOneShot)
 {
-    Init(count, increase, start, isLoop);
+    Init(count, increase, start, isOneShot);
     if(!animTransform) return;
 
     animTransform->SetFrame(frame);
