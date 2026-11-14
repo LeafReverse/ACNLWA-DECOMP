@@ -7,6 +7,12 @@ namespace ssys { namespace ma { namespace lyt
     class FrameCtrl
     {
         public:
+        enum Flag
+        {
+            FLAG_ONE_SHOT = 1 << 0,
+            FLAG_REVERSE = 1 << 1
+        };
+
         FrameCtrl() : frameCount(0.0f), frame(0.0f), prevFrame(0.0f), frameIncrease(1.0f), flags(0), animTransform(0) {}
 
         virtual ~FrameCtrl() {}
@@ -15,6 +21,15 @@ namespace ssys { namespace ma { namespace lyt
         void Setup(float count, float increase, float start, bool isOneShot);
         void Init(float count, float increase, float start, bool isOneShot);
         void SetAnimTransform(nw::lyt::AnimTransform* transform);
+        void Update();
+
+        void ApplyFrame(float value)
+        {
+            frame = value;
+            if(!animTransform) return;
+
+            animTransform->SetFrame(value);
+        }
 
         void Reset(float count, float increase, float start, bool isOneShot)
         {

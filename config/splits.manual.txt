@@ -7,11 +7,11 @@ game/stage/Stage.cpp:
 game/ssys/ma/lyt/Layout.cpp:
 	.text        start:0x001323D8 end:0x001323E0
 	.text        start:0x004B4018 end:0x004B4020
-	.text        start:0x00567688 end:0x005687CC
+	.text        start:0x00567688 end:0x0056859C
 
 game/ssys/ma/lyt/Animation.cpp:
 	.text        start:0x00125B10 end:0x00125B5C
-	.text        start:0x005687CC end:0x00568930
+	.text        start:0x0056859C end:0x00568930
 	.text        start:0x00568B9C end:0x00568BC8
 
 game/ssys/ma/lyt/ArcResAcc.cpp:

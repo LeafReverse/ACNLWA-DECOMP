@@ -22,6 +22,33 @@ ssys::ma::lyt::Animation::~Animation()
     entries = 0;
 }
 
+void ssys::ma::lyt::FrameCtrl::Update()
+{
+    prevFrame = frame;
+    float next;
+    if(flags & FLAG_REVERSE)
+    {
+        if(frameIncrease <= frame)
+            next = frame - frameIncrease;
+        else if(flags & FLAG_ONE_SHOT)
+            next = 0.0f;
+        else
+            next = frameCount - frameIncrease + frame;
+    }
+    else
+    {
+        next = frameIncrease + frame;
+        if(flags & FLAG_ONE_SHOT)
+        {
+            if(next > frameCount - 1.0f) next = frameCount - 1.0f;
+        }
+        else if(next >= frameCount)
+            next -= frameCount;
+    }
+
+    ApplyFrame(next);
+}
+
 void ssys::ma::lyt::FrameCtrl::SetAnimTransform(nw::lyt::AnimTransform* transform)
 {
     animTransform = transform;
@@ -39,10 +66,7 @@ void ssys::ma::lyt::FrameCtrl::SetAnimTransform(nw::lyt::AnimTransform* transfor
 void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
 {
     prevFrame = value;
-    frame = value;
-    if(!animTransform) return;
-
-    animTransform->SetFrame(value);
+    ApplyFrame(value);
 }
 
 void ssys::ma::lyt::FrameCtrl::Init(float count, float increase, float start, bool isOneShot)
