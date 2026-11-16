@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -12,6 +13,7 @@ from toolchain import DataDir
 
 NOISE = re.compile(r"^(libEGL warning:|MESA-LOADER|pci id for fd |wine: .*\bwineboot\b|.*fixme:|\s*$)")
 WINDOWS_DRIVE = re.compile(r"^([A-Za-z]):[\\/]")
+WINESERVER_PERSIST = 300
 
 def cleanStream(text):
     lines = [line.rstrip("\r") for line in text.splitlines()]
@@ -32,6 +34,19 @@ def runnerEnv(compiler):
     env.pop("WAYLAND_DISPLAY", None)
 
     return env
+
+def WineserverPath():
+    wine = os.environ.get("WINE") or shutil.which("wine") or "wine"
+    return os.environ.get("WINESERVER") or shutil.which("wineserver") or str(Path(wine).with_name("wineserver"))
+
+def startWineserver(env):
+    quiet = {"env": env, "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+    try:
+        if subprocess.run([WineserverPath(), "-p", str(WINESERVER_PERSIST)], **quiet).returncode: return
+
+        subprocess.run([os.environ.get("WINE", "wine"), "wineboot"], **quiet)
+    except OSError:
+        pass
 
 def hostDependency(path, compiler):
     if compiler.Runner != "wine": return path
@@ -81,7 +96,10 @@ def main():
         args += ["--depend=%s" % raw, "--depend_format=unix_escaped"]
 
     command = ([os.environ.get("WINE", "wine")] if compiler.Runner == "wine" else []) + [str(compiler.Executable(program))]
-    result = subprocess.run(command + args, env=runnerEnv(compiler), cwd=os.environ.get("CC_CWD", ROOT), capture_output=True, text=True, errors="replace")
+    env = runnerEnv(compiler)
+    if compiler.Runner == "wine": startWineserver(env)
+
+    result = subprocess.run(command + args, env=env, cwd=os.environ.get("CC_CWD", ROOT), capture_output=True, text=True, errors="replace")
     out = cleanStream(result.stdout)
     err = cleanStream(result.stderr)
     if out: print(out)

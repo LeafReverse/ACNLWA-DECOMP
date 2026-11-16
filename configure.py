@@ -2,11 +2,15 @@
 import argparse
 import bisect
 import json
+import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
+from cc import WINESERVER_PERSIST, WineserverPath, winePrefix
+from compiler import Find as FindCompiler
 from ctrproject import BinaryPath, ExistingPaths, ExpandPath, FetchDependencies, DebugElfPath, LoadProject, ProjectPath, ROOT, ReadSplits, ReadSymbols, ToolPath, VerifyImageHash
 from editor import WriteCompileCommands, WriteVscodeConfig, WriteVscodeDebug
 from emulator import DEFAULT_PORT as GDB_PORT
@@ -17,10 +21,13 @@ SOURCE_EXTENSIONS = (".cpp", ".cc", ".c", ".s")
 DEFAULT_ASFLAGS = ["--cpu=MPCore", "--apcs=/interwork"]
 TOOL_SCRIPTS = ["tools/asmgen.py", "tools/ctrproject.py"]
 DEFAULT_THUMB_FLAGS = ["--thumb"]
-CONFIG_INPUTS = ["configure.py", "config/project.json", "config/splits.txt", "config/symbols.txt", "config/splits.manual.txt", "config/symbols.manual.txt", "tools.json"]
+CONFIG_INPUTS = ["configure.py", "config/project.json", "config/splits.txt", "config/symbols.txt", "config/splits.manual.txt", "config/symbols.manual.txt", "tools.json", "tools/cc.py"]
 SYMSYNC_STAMP = "build/symsync.stamp"
 SYMSYNC_SCRIPT = "tools/symsync.py"
 DEBUGELF_SCRIPT = "tools/debugelf.py"
+WINE_DEPFILE_FIXUP = r" && sed -e 's/: Z:\//: \//' -e '/: [A-Za-z]:\//d' $out.raw.d > $out.d && rm -f $out.raw.d"
+WINEBOOT_TARGET = "build/wineboot.stamp"
+LIBRARY_SYMBOLS = "build/lib/symbols.txt"
 
 
 def ninjaPath(text):
@@ -31,6 +38,10 @@ def commandArg(text):
     text = str(text).replace("$", "$$")
 
     return '"%s"' % text if " " in text else text
+
+
+def shellArg(text):
+    return shlex.quote(str(text)).replace("$", "$$")
 
 # AVOID ANY EXTERNAL TOOLS TO FUCK WITH THE BUILD SYSTEM
 # CUZ THAT'S WHAT HAPPENED WHEN I UPDATED MY PACKAGES.
@@ -49,6 +60,43 @@ def relative(path):
     except ValueError:
         return path.as_posix()
 
+def wineVariables(compiler):
+    wine = shellArg(os.environ.get("WINE") or "wine")
+    env = {"WINEPREFIX": winePrefix(compiler), "WINEDEBUG": os.environ.get("WINEDEBUG", "-all"), "WINEDLLOVERRIDES": os.environ.get("WINEDLLOVERRIDES", "mscoree,mshtml=")}
+    env.update(compiler.Environment())
+    return [
+        "winerun = env -u DISPLAY -u WAYLAND_DISPLAY %s" % " ".join(shellArg("%s=%s" % item) for item in env.items()),
+        "armcc = $winerun %s %s" % (wine, shellArg(compiler.Executable("armcc"))),
+        "armasm = $winerun %s %s" % (wine, shellArg(compiler.Executable("armasm"))),
+        "",
+        "rule wineboot",
+        "  command = $winerun %s -p %d </dev/null >/dev/null 2>&1 && $winerun %s wineboot </dev/null >/dev/null 2>&1; exit 0" % (shellArg(WineserverPath()), WINESERVER_PERSIST, wine),
+        "  description = WINEBOOT",
+    ]
+
+def nativeVariables(compiler):
+    missing = [item for item in compiler.Environment().items() if item[0] not in os.environ]
+    launch = ("cmd /c %s&& " % "&& ".join('set "%s=%s"' % item for item in missing)).replace("$", "$$") if missing else ""
+    return ["armcc = %s%s" % (launch, commandArg(compiler.Executable("armcc"))), "armasm = %s%s" % (launch, commandArg(compiler.Executable("armasm")))]
+
+def compilerRules():
+    compiler = FindCompiler()
+    runner = compiler.Runner if compiler else None
+    if runner == "wine":
+        lines = wineVariables(compiler)
+        compile = "$armcc --depend=$out.raw.d --depend_format=unix_escaped %s $includes -c $in -o $out" + WINE_DEPFILE_FIXUP
+    elif runner:
+        lines = nativeVariables(compiler)
+        compile = "$armcc --depend=$out.d --depend_format=unix_escaped %s $includes -c $in -o $out"
+    else:
+        lines = ["armcc = $python tools/cc.py armcc", "armasm = $python tools/cc.py armasm"]
+        compile = "$armcc --depfile $out.d %s $includes -c $in -o $out"
+
+    for name, flags in (("cc", "$cflags"), ("ccdebug", "$cflags --debug")):
+        lines += ["", "rule " + name, "  command = " + compile % flags, "  depfile = $out.d", "  deps = gcc", "  description = CC $out"]
+
+    lines += ["", "rule armasm", "  command = $armasm $asflags $in -o $out", "  description = ARMASM $out"]
+    return lines, " || " + WINEBOOT_TARGET if runner == "wine" else ""
 
 def SourceRoots(project):
     roots = []
@@ -97,8 +145,8 @@ def UnitCategories(unitName, folders):
     return dirs or [parts[0]]
 
 
-def ThumbUnits(units):
-    funcs = sorted((s.Addr, s.Size, s.Thumb) for s in ReadSymbols() if s.Kind == "function")
+def ThumbUnits(units, symbols=None):
+    funcs = sorted((s.Addr, s.Size, s.Thumb) for s in symbols or ReadSymbols() if s.Kind == "function")
     starts = [f[0] for f in funcs]
     thumb = set()
 
@@ -115,8 +163,8 @@ def ThumbUnits(units):
     return thumb
 
 
-def LibraryUnits(units):
-    funcs = sorted((s for s in ReadSymbols() if s.Kind == "function" and "linker" not in s.Attrs), key=lambda s: s.Addr)
+def LibraryUnits(units, symbols=None):
+    funcs = sorted((s for s in symbols or ReadSymbols() if s.Kind == "function" and "linker" not in s.Attrs), key=lambda s: s.Addr)
     starts = [f.Addr for f in funcs]
     found = {}
 
@@ -138,19 +186,31 @@ def LibraryUnits(units):
     return found
 
 
+def writeLibrarySymbols(symbols):
+    path = ProjectPath(LIBRARY_SYMBOLS)
+    text = "".join("%s %08X %s %s %s\n" % (s.Name, s.Addr, s.Kind, s.Attrs["lib"], s.Attrs.get("libid", "")) for s in symbols if "lib" in s.Attrs)
+    if path.exists() and path.read_text() == text: return
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+
+
 def writeNinja(project, units, sources, includeDirs, thumbUnits, libraryUnits, debugElf):
     compiler = project["compiler"]
     binary = relative(ExpandPath(project["binary"]["path"], project))
+    rules, wineOrder = compilerRules()
     lines = [
         "ninja_required_version = 1.10",
         "python = %s" % commandArg(projectPython()),
         "asflags = %s" % " ".join(commandArg(f) for f in compiler.get("asflags", DEFAULT_ASFLAGS)),
         "objdiff = %s" % commandArg(ToolPath("objdiff-cli")),
         "includes = %s" % " ".join(commandArg("-I" + relative(d)) for d in includeDirs),
+        *rules,
         "",
         "rule configure",
         "  command = $python configure.py",
         "  generator = 1",
+        "  restat = 1",
         "  description = CONFIGURE",
         "",
         "rule asmgen",
@@ -163,25 +223,9 @@ def writeNinja(project, units, sources, includeDirs, thumbUnits, libraryUnits, d
         "  restat = 1",
         "  description = SYMSYNC",
         "",
-        "rule cc",
-        "  command = $python tools/cc.py armcc --depfile $out.d $cflags $includes -c $in -o $out",
-        "  depfile = $out.d",
-        "  deps = gcc",
-        "  description = CC $out",
-        "",
-        "rule ccdebug",
-        "  command = $python tools/cc.py armcc --depfile $out.d $cflags --debug $includes -c $in -o $out",
-        "  depfile = $out.d",
-        "  deps = gcc",
-        "  description = CC $out",
-        "",
         "rule debugelf",
         "  command = $python tools/debugelf.py -o $out $in",
         "  description = DEBUGELF $out",
-        "",
-        "rule armasm",
-        "  command = $python tools/cc.py armasm $asflags $in -o $out",
-        "  description = ARMASM $out",
         "",
         "rule libextract",
         "  command = $python tools/libmatch.py --archive-id $libid --extract $archive $member $out",
@@ -199,9 +243,11 @@ def writeNinja(project, units, sources, includeDirs, thumbUnits, libraryUnits, d
         "  command = $python tools/toolkitsplit.py",
         "  description = 3DSDECOMP-TOOLKIT split + program_original.elf, compare .text",
         "",
-        "build build.ninja objdiff.json: configure | %s" % " ".join(CONFIG_INPUTS),
+        "build build.ninja objdiff.json %s: configure | %s" % (LIBRARY_SYMBOLS, " ".join(CONFIG_INPUTS)),
         "",
     ]
+    if wineOrder: lines += ["build %s: wineboot" % WINEBOOT_TARGET, ""]
+
     asmOutputs = " ".join(ninjaPath("build/asm/%s.s" % u.Name) for u in units)
     sourceBases = " ".join(ninjaPath("build/base/%s.o" % u.Name) for u in units if u.Name in sources)
     lines += ["build %s: symsync %s | %s" % (SYMSYNC_STAMP, sourceBases, SYMSYNC_SCRIPT), ""]
@@ -212,26 +258,26 @@ def writeNinja(project, units, sources, includeDirs, thumbUnits, libraryUnits, d
 
     for unit in units:
         target = "build/target/%s.o" % unit.Name
-        lines.append("build %s: armasm %s" % (ninjaPath(target), ninjaPath("build/asm/%s.s" % unit.Name)))
+        lines.append("build %s: armasm %s%s" % (ninjaPath(target), ninjaPath("build/asm/%s.s" % unit.Name), wineOrder))
         targets.append(target)
         source = sources.get(unit.Name)
         base = "build/base/%s.o" % unit.Name
 
         if not source and unit.Name in libraryUnits:
             archive, member, _, libid = libraryUnits[unit.Name]
-            lines += ["build %s: libextract | config/symbols.txt" % ninjaPath(base), "  archive = %s" % archive, "  member = %s" % member, "  libid = %s" % (libid or "\"\"")]
+            lines += ["build %s: libextract | %s" % (ninjaPath(base), LIBRARY_SYMBOLS), "  archive = %s" % archive, "  member = %s" % member, "  libid = %s" % (libid or "\"\"")]
             bases.append(base)
             continue
 
         if not source: continue
 
         if source.suffix == ".s":
-            lines.append("build %s: armasm %s" % (ninjaPath(base), ninjaPath(relative(source))))
+            lines.append("build %s: armasm %s%s" % (ninjaPath(base), ninjaPath(relative(source)), wineOrder))
         else:
             cflags = "  cflags = %s" % " ".join(commandArg(f) for f in unitFlags(compiler, unit.Name, unit.Name in thumbUnits))
             debug = "build/debug/%s.o" % unit.Name
-            lines += ["build %s: cc %s" % (ninjaPath(base), ninjaPath(relative(source))), cflags]
-            lines += ["build %s: ccdebug %s" % (ninjaPath(debug), ninjaPath(relative(source))), cflags]
+            lines += ["build %s: cc %s%s" % (ninjaPath(base), ninjaPath(relative(source)), wineOrder), cflags]
+            lines += ["build %s: ccdebug %s%s" % (ninjaPath(debug), ninjaPath(relative(source)), wineOrder), cflags]
             debugObjects.append(debug)
         bases.append(base)
 
@@ -286,7 +332,7 @@ def writeObjdiff(project, units, sources, libraryUnits):
         "build_target": True,
         "build_base": True,
         "watch_patterns": ["*.c", "*.cc", "*.cpp", "*.s", "*.h", "*.hpp", "*.inc", "*.txt", "*.json"],
-        "ignore_patterns": ["build/**/*", "lib/**/*"],
+        "ignore_patterns": ["build/**/*", "lib/**/*", "config/symbols.txt", "config/splits.txt", "compile_commands.json", ".vscode/**/*"],
         "progress_categories": [{"id": c, "name": n} for c, n in sorted(categories.items())],
         "options": project.get("objdiff", {}).get("options", {}),
         "units": entries,
@@ -374,8 +420,10 @@ def main():
 
         if source: sources[unit.Name] = source
 
-    libraryUnits = LibraryUnits(units)
-    writeNinja(project, units, sources, includeDirs, ThumbUnits(units), libraryUnits, debugElf)
+    symbols = ReadSymbols()
+    writeLibrarySymbols(symbols)
+    libraryUnits = LibraryUnits(units, symbols)
+    writeNinja(project, units, sources, includeDirs, ThumbUnits(units, symbols), libraryUnits, debugElf)
     count = writeObjdiff(project, units, sources, libraryUnits)
     print("%d units in %d progress categories, %d with source, %d from compiler libraries: build.ninja, objdiff.json" % (len(units), count, len(sources), sum(1 for u in libraryUnits if u not in sources)))
 
