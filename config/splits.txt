@@ -658,7 +658,7 @@ game/Garden/Application/Application_001320B0.cpp:
 game/ssys/ma/lyt/Layout.cpp:
 	.text        start:0x001323D8 end:0x001323E0
 	.text        start:0x004B4018 end:0x004B4020
-	.text        start:0x00567688 end:0x00568830
+	.text        start:0x00567688 end:0x00568838
 
 game/ssys/ma/lyt/LayoutMgr.cpp:
 	.text        start:0x001323E0 end:0x001323F0

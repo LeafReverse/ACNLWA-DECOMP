@@ -126,15 +126,15 @@
         }
       },
       "bin": {
-        "as": "arm-gnu-toolchain-*/bin/arm-none-eabi-as",
-        "objdump": "arm-gnu-toolchain-*/bin/arm-none-eabi-objdump",
-        "nm": "arm-gnu-toolchain-*/bin/arm-none-eabi-nm",
-        "readelf": "arm-gnu-toolchain-*/bin/arm-none-eabi-readelf",
-        "cxxfilt": "arm-gnu-toolchain-*/bin/arm-none-eabi-c++filt",
-        "gcc": "arm-gnu-toolchain-*/bin/arm-none-eabi-g++",
-        "objcopy": "arm-gnu-toolchain-*/bin/arm-none-eabi-objcopy",
-        "ld": "arm-gnu-toolchain-*/bin/arm-none-eabi-ld",
-        "gdb": "arm-gnu-toolchain-*/bin/arm-none-eabi-gdb"
+          "as": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-as",
+          "objdump": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-objdump",
+          "nm": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-nm",
+          "readelf": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-readelf",
+          "cxxfilt": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-c\\+\\+filt",
+          "gcc": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-g\\+\\+",
+          "objcopy": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-objcopy",
+          "ld": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-ld",
+          "gdb": "(?:arm-gnu-toolchain-.*/)?bin/arm-none-eabi-gdb"
       }
     },
     "ninja": {
