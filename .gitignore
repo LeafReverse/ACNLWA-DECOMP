@@ -9,6 +9,7 @@
 
 !/config/*.json
 !/config/symbols.txt
+!/config/symbols.manual.txt
 !/config/splits.txt
 !/config/splits.manual.txt
 !/config/imports/*
