@@ -11,14 +11,36 @@ game/ssys/ma/lyt/Layout.cpp:
 
 game/ssys/ma/lyt/Animation.cpp:
 	.text        start:0x00125B10 end:0x00125B5C
-	.text        start:0x0056859C end:0x00568930
+	.text        start:0x0056863C end:0x005687CC
+	.text        start:0x00568890 end:0x00568930
+
+game/ssys/ma/lyt/FrameCtrl.cpp:
+	.text        start:0x0056859C end:0x00568634
+	.text        start:0x005687CC end:0x00568890
 	.text        start:0x00568B9C end:0x00568BC8
+
+game/ssys/ma/lyt/DummyLayout.cpp:
+	.text        start:0x00566BE4 end:0x00566D18
+
+game/ssys/ma/lyt/ArcResAccReader.cpp:
+	.text        start:0x00566D20 end:0x00566D3C
+	.text        start:0x00566DF4 end:0x00566E04
+	.text        start:0x00566E7C end:0x00566E8C
+	.text        start:0x00566F48 end:0x00566F70
 
 game/ssys/ma/lyt/ArcResAcc.cpp:
 	.text        start:0x00568934 end:0x00568B9C
 
+game/ssys/ma/Allocator.cpp:
+	.text        start:0x00120864 end:0x00120878
+	.text        start:0x0012CA90 end:0x0012CA9C
+	.text        start:0x0056977C end:0x005697B0
+
 game/ssys/ma/lyt/LayoutMgr.cpp:
 	.text        start:0x001323E0 end:0x001323F0
+	.text        start:0x00568DA8 end:0x00568DB8
+	.text        start:0x00568E1C end:0x00568E2C
+	.text        start:0x00568EC4 end:0x00568EE8
 	.text        start:0x005691A4 end:0x00569778
 
 game/netgame/NetGameMgr.cpp:

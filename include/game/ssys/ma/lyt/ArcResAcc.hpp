@@ -11,6 +11,8 @@ namespace ssys { namespace ma { namespace lyt
         ResAccInterface(nw::lyt::ResourceAccessor* accessor) : resourceAccessor(accessor), data(0) {}
         virtual ~ResAccInterface() {}
 
+        nw::lyt::ResourceAccessor* GetResourceAccessor() const { return resourceAccessor; }
+
         protected:
         nw::lyt::ResourceAccessor* resourceAccessor;
         const void* data;

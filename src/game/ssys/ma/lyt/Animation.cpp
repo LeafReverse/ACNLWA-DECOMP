@@ -1,11 +1,10 @@
 #include <game/ssys/ma/lyt/Animation.hpp>
-#include <game/ssys/ma/lyt/FrameCtrl.hpp>
+#include <game/ssys/ma/lyt/ArcResAcc.hpp>
+#include <game/ssys/ma/lyt/DummyLayout.hpp>
+#include <game/ssys/ma/lyt/LayoutMgr.hpp>
 #include <nw/lyt/AnimTransform.hpp>
 #include <nw/lyt/Layout.hpp>
-
-struct ssys::ma::lyt::Animation::EntryInfo
-{
-};
+#include <sead/basis/New.hpp>
 
 #pragma arm
 ssys::ma::lyt::Animation::Animation() : isBound(0), entryCount(0), entries(0), isDescendingBind(false) {}
@@ -22,66 +21,30 @@ ssys::ma::lyt::Animation::~Animation()
     entries = 0;
 }
 
-void ssys::ma::lyt::FrameCtrl::Update()
+bool ssys::ma::lyt::Animation::Initialize(const char* name, const ResAccInterface* resAcc)
 {
-    prevFrame = frame;
-    float next;
-    if(flags & FLAG_REVERSE)
+    if(animTransform)
     {
-        if(frameIncrease <= frame)
-            next = frame - frameIncrease;
-        else if(flags & FLAG_ONE_SHOT)
-            next = 0.0f;
-        else
-            next = frameCount - frameIncrease + frame;
-    }
-    else
-    {
-        next = frameIncrease + frame;
-        if(flags & FLAG_ONE_SHOT)
-        {
-            if(next > frameCount - 1.0f) next = frameCount - 1.0f;
-        }
-        else if(next >= frameCount)
-            next -= frameCount;
+        animTransform->~AnimTransform();
+        nw::lyt::Layout::FreeMemory(animTransform);
+        animTransform = 0;
+        delete[] entries;
+        entries = 0;
     }
 
-    ApplyFrame(next);
-}
+    static DummyLayout s_DummyLayout;
 
-void ssys::ma::lyt::FrameCtrl::SetAnimTransform(nw::lyt::AnimTransform* transform)
-{
-    animTransform = transform;
-    if(!animTransform) return;
+    void* resource = resAcc->GetResourceAccessor()->GetResource(nw::lyt::res::RESOURCETYPE_ANIMATION, name);
+    if(!resource) resource = resAcc->GetResourceAccessor()->GetResource(0, name);
 
-    bool isOneShot = true;
-    if(animTransform->IsLoopData()) isOneShot = false;
+    nw::lyt::AnimTransform* transform = s_DummyLayout.CreateAnimTransform(resource, resAcc->GetResourceAccessor());
+    if(!transform) return false;
 
-    Reset(animTransform->GetFrameSize(), 1.0f, 0.0f, isOneShot);
-    if(!animTransform) return;
+    nw::lyt::AnimResource animRes(resource);
+    isDescendingBind = animRes.IsDescendingBind();
+    entryCount = transform->GetResource()->animContNum;
+    entries = new(GetAllocator()->GetHeap(), 4) nw::lyt::AnimationLink[entryCount];
+    SetAnimTransform(transform);
 
-    animTransform->SetFrame(frame);
-}
-
-void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
-{
-    prevFrame = value;
-    ApplyFrame(value);
-}
-
-void ssys::ma::lyt::FrameCtrl::Init(float count, float increase, float start, bool isOneShot)
-{
-    frameCount = count;
-    frame = (start < 0.0f) ? 0.0f : start;
-    frameIncrease = increase;
-    flags = isOneShot;
-    prevFrame = frame;
-}
-
-void ssys::ma::lyt::FrameCtrl::Setup(float count, float increase, float start, bool isOneShot)
-{
-    Init(count, increase, start, isOneShot);
-    if(!animTransform) return;
-
-    animTransform->SetFrame(frame);
+    return true;
 }

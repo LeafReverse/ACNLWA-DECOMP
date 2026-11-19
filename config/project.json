@@ -79,13 +79,11 @@
     "cflags": [
       "--cpp",
       "--cpu=MPCore",
-      "--arm",
       "--apcs=/interwork",
       "--fpmode=fast",
       "--no_rtti",
       "--no_exceptions",
       "--no_vfe",
-      "--force_new_nothrow",
       "--signed_chars",
       "--multibyte_chars",
       "--locale=japanese",

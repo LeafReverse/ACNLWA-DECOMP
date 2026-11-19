@@ -5,6 +5,7 @@
 namespace ssys { namespace ma { namespace lyt 
 {
     class Layout;
+    class ResAccInterface;
 
     class Animation : public FrameCtrl
     {
@@ -12,14 +13,14 @@ namespace ssys { namespace ma { namespace lyt
         Animation();
         virtual ~Animation();
 
+        bool Initialize(const char* name, const ResAccInterface* resAcc);
+
         private:
         friend class Layout;
 
-        struct EntryInfo;
-
         unsigned char isBound;
         unsigned short entryCount;
-        EntryInfo* entries;
+        nw::lyt::AnimationLink* entries;
         bool isDescendingBind;
     };
 }}}
