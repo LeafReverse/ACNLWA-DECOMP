@@ -1,11 +1,10 @@
 #include <game/ssys/ma/lyt/Animation.hpp>
-#include <game/ssys/ma/lyt/FrameCtrl.hpp>
+#include <game/ssys/ma/lyt/ArcResAcc.hpp>
+#include <game/ssys/ma/lyt/DummyLayout.hpp>
+#include <game/ssys/ma/lyt/LayoutMgr.hpp>
 #include <nw/lyt/AnimTransform.hpp>
 #include <nw/lyt/Layout.hpp>
-
-struct ssys::ma::lyt::Animation::EntryInfo
-{
-};
+#include <sead/basis/New.hpp>
 
 #pragma arm
 ssys::ma::lyt::Animation::Animation() : isBound(0), entryCount(0), entries(0), isDescendingBind(false) {}
@@ -22,28 +21,30 @@ ssys::ma::lyt::Animation::~Animation()
     entries = 0;
 }
 
-void ssys::ma::lyt::FrameCtrl::SetFrame(float value)
+bool ssys::ma::lyt::Animation::Initialize(const char* name, const ResAccInterface* resAcc)
 {
-    prevFrame = value;
-    frame = value;
-    if(!animTransform) return;
+    if(animTransform)
+    {
+        animTransform->~AnimTransform();
+        nw::lyt::Layout::FreeMemory(animTransform);
+        animTransform = 0;
+        delete[] entries;
+        entries = 0;
+    }
 
-    animTransform->SetFrame(value);
-}
+    static DummyLayout s_DummyLayout;
 
-void ssys::ma::lyt::FrameCtrl::Init(float count, float increase, float start, bool isLoop)
-{
-    frameCount = count;
-    frame = (start < 0.0f) ? 0.0f : start;
-    frameIncrease = increase;
-    loop = isLoop;
-    prevFrame = frame;
-}
+    void* resource = resAcc->GetResourceAccessor()->GetResource(nw::lyt::res::RESOURCETYPE_ANIMATION, name);
+    if(!resource) resource = resAcc->GetResourceAccessor()->GetResource(0, name);
 
-void ssys::ma::lyt::FrameCtrl::Setup(float count, float increase, float start, bool isLoop)
-{
-    Init(count, increase, start, isLoop);
-    if(!animTransform) return;
+    nw::lyt::AnimTransform* transform = s_DummyLayout.CreateAnimTransform(resource, resAcc->GetResourceAccessor());
+    if(!transform) return false;
 
-    animTransform->SetFrame(frame);
+    nw::lyt::AnimResource animRes(resource);
+    isDescendingBind = animRes.IsDescendingBind();
+    entryCount = transform->GetResource()->animContNum;
+    entries = new(GetAllocator()->GetHeap(), 4) nw::lyt::AnimationLink[entryCount];
+    SetAnimTransform(transform);
+
+    return true;
 }

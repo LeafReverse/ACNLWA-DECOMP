@@ -560,7 +560,15 @@ game/Runtime/Runtime_00120120.cpp:
 	.text        start:0x00120120 end:0x001201B4
 
 game/Garden/Application/Application_001201BC.cpp:
-	.text        start:0x001201BC end:0x00120884
+	.text        start:0x001201BC end:0x00120864
+
+game/ssys/ma/Allocator.cpp:
+	.text        start:0x00120864 end:0x00120878
+	.text        start:0x0012CA90 end:0x0012CA9C
+	.text        start:0x0056977C end:0x005697B0
+
+game/Garden/Application/Application_00120878.cpp:
+	.text        start:0x00120878 end:0x00120884
 
 game/RenderManager/RenderManager_001208B8.cpp:
 	.text        start:0x001208B8 end:0x001208C0
@@ -585,8 +593,8 @@ game/Garden/Application.cpp:
 
 game/ssys/ma/lyt/Animation.cpp:
 	.text        start:0x00125B10 end:0x00125B5C
-	.text        start:0x00568838 end:0x00568930
-	.text        start:0x00568B9C end:0x00568BC8
+	.text        start:0x0056863C end:0x005687CC
+	.text        start:0x00568890 end:0x00568930
 
 game/Garden/Application/Application_00125B5C.cpp:
 	.text        start:0x00125B5C end:0x00127C4C
@@ -614,7 +622,10 @@ game/CTR/SRV/SRV_001296BC.cpp:
 	.text        start:0x001296BC end:0x00129FC0
 
 game/Garden/Application/Application_00129FC4.cpp:
-	.text        start:0x00129FC4 end:0x0012D1BC
+	.text        start:0x00129FC4 end:0x0012CA90
+
+game/Garden/Application/Application_0012CA9C.cpp:
+	.text        start:0x0012CA9C end:0x0012D1BC
 
 game/BsNpcMgr/BsNpcMgr_0012D1BC.cpp:
 	.text        start:0x0012D1BC end:0x0012D468
@@ -658,10 +669,13 @@ game/Garden/Application/Application_001320B0.cpp:
 game/ssys/ma/lyt/Layout.cpp:
 	.text        start:0x001323D8 end:0x001323E0
 	.text        start:0x004B4018 end:0x004B4020
-	.text        start:0x00567688 end:0x00568838
+	.text        start:0x00567688 end:0x0056859C
 
 game/ssys/ma/lyt/LayoutMgr.cpp:
 	.text        start:0x001323E0 end:0x001323F0
+	.text        start:0x00568DA8 end:0x00568DB8
+	.text        start:0x00568E1C end:0x00568E2C
+	.text        start:0x00568EC4 end:0x00568EE8
 	.text        start:0x005691A4 end:0x00569778
 
 game/Garden/Application/Application_001323F0.cpp:
@@ -6171,10 +6185,25 @@ game/ssys/ma/lyt/TexBufList.cpp:
 	.text        start:0x00566B10 end:0x00566BE0
 
 game/ssys/ma/lyt/DummyLayout.cpp:
-	.text        start:0x00566BE4 end:0x00566F40
+	.text        start:0x00566BE4 end:0x00566D18
+
+game/ssys/ma/lyt/DummyLayout/DummyLayout_00566D18.cpp:
+	.text        start:0x00566D18 end:0x00566D20
 
 game/ssys/ma/lyt/ArcResAccReader.cpp:
+	.text        start:0x00566D20 end:0x00566D3C
+	.text        start:0x00566DF4 end:0x00566E04
+	.text        start:0x00566E7C end:0x00566E8C
 	.text        start:0x00566F48 end:0x00566F70
+
+game/ssys/ma/lyt/DummyLayout/DummyLayout_00566D3C.cpp:
+	.text        start:0x00566D3C end:0x00566DF4
+
+game/ssys/ma/lyt/DummyLayout/DummyLayout_00566E04.cpp:
+	.text        start:0x00566E04 end:0x00566E7C
+
+game/ssys/ma/lyt/DummyLayout/DummyLayout_00566E8C.cpp:
+	.text        start:0x00566E8C end:0x00566F40
 
 nw/lyt/TextAreaEx/TextAreaEx_00566F78.cpp:
 	.text        start:0x00566F78 end:0x00567160
@@ -6182,14 +6211,31 @@ nw/lyt/TextAreaEx/TextAreaEx_00566F78.cpp:
 game/ssys/ma/lyt/ArcResourceAccessorVRAM.cpp:
 	.text        start:0x00567168 end:0x00567688
 
+game/ssys/ma/lyt/FrameCtrl.cpp:
+	.text        start:0x0056859C end:0x00568634
+	.text        start:0x005687CC end:0x00568890
+	.text        start:0x00568B9C end:0x00568BC8
+
+game/ssys/ma/lyt/Animation/Animation_00568634.cpp:
+	.text        start:0x00568634 end:0x0056863C
+
+game/ssys/ma/lyt/Layout/Layout_00568634.cpp:
+	.text        start:0x00568634 end:0x0056863C
+
 game/ssys/ma/lyt/ArcResAcc.cpp:
 	.text        start:0x00568934 end:0x00568B9C
 
 game/SystemTask/SystemTask_00568BD0.cpp:
-	.text        start:0x00568BD0 end:0x005691A0
+	.text        start:0x00568BD0 end:0x00568DA8
 
-game/ssys/ma/HeapAllocator.cpp:
-	.text        start:0x0056977C end:0x005697AC
+game/SystemTask/SystemTask_00568DB8.cpp:
+	.text        start:0x00568DB8 end:0x00568E1C
+
+game/SystemTask/SystemTask_00568E2C.cpp:
+	.text        start:0x00568E2C end:0x00568EC4
+
+game/SystemTask/SystemTask_00568EE8.cpp:
+	.text        start:0x00568EE8 end:0x005691A0
 
 game/SystemTask/SystemTask_005697B4.cpp:
 	.text        start:0x005697B4 end:0x00569DFC
